@@ -1,0 +1,27 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:16
+    restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: chronologia
+      POSTGRES_USER: chronologia_user
+      POSTGRES_PASSWORD: chronologia_password
+
+  web:
+    build: .
+    command: ["sh", "-c", "python manage.py migrate && python manage.py runserver 127.0.0.1:8000"]
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgres://chronologia_user:chronologia_password@db:5432/chronologia
+
+volumes:
+  postgres_data:
